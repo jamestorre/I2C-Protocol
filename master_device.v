@@ -16,6 +16,8 @@ module master_device (
 	localparam READ_ACK1 = 3;
 	localparam WRITE_DATA = 4;
 	localparam READ_DATA = 5;
+	localparam READ_ACK2 = 6;
+	localparam SEND_ACK2 = 7;
 	localparam STOP = 8;
 	
 	reg [7:0] counter;
@@ -26,6 +28,8 @@ module master_device (
 	reg sda_write_enable;
 	reg scl_reg;
 	reg sda_out;
+	reg data_failure;
+	integer i = 0;
 	
 	assign scl = (scl_enable) ? scl_reg : 1;
 	assign sda = (sda_write_enable) ? sda_out : 'bz;
@@ -41,6 +45,8 @@ module master_device (
 		scl_reg <= 0;
 		scl_enable <= 0;
 		state <= IDLE;
+		data_buffer <= 'hzz;
+		data_failure <= 0;
 	end
 	
 	always @(posedge scl_reg) begin
@@ -89,7 +95,7 @@ module master_device (
 			READ_DATA: begin
 				data_buffer[counter] <= sda; 
 				if (counter == 0) begin
-					state <= STOP;
+					state <= SEND_ACK2;
 				end
 			end
 		
@@ -126,6 +132,23 @@ module master_device (
 			
 			WRITE_DATA: begin
 				
+			end
+			
+			SEND_ACK2: begin
+				
+				for (i = 0; i < 8; i = i + 1) begin
+					if (data_buffer[i] === 'bz) begin // failure
+						data_failure <= 1;
+						sda_out <= 1;
+						
+					end
+				end
+				if (data_failure) begin
+					state <= STOP;
+				end else begin
+					state <= STOP; // could be next data byte;
+				end
+					
 			end
 			
 			
