@@ -1,76 +1,58 @@
-`timescale 1ns / 1ns
+`timescale 1ns / 100ps
 
 `include "master_device.v"
 `include "slave_device.v"
 
 module master_device_tb;
-
 	reg clk;
 	reg enable;
-	
-	reg [6:0] dest_address;
+	reg rst;
+	reg [6:0] address_in;
 	reg rw;
-	
+	reg [7:0] data_in;
 	
 	wire scl;
 	wire sda;
 	
-	
-	master_device master (
-			.clk(clk),
-			.enable(enable),
-			.dest_address(dest_address),
-			.rw(rw),
-			.scl(scl),
-			.sda(sda)
-		);
-		
-	slave_device slave(
+	master_device DUT_master_device (
+		.clk(clk),
+		.enable(enable),
+		.rst(rst),
+		.address_in(address_in),
+		.rw(rw),
+		.data_in(data_in),
 		.scl(scl),
 		.sda(sda)
 		);
-		
-	
+
+	slave_device DUT_slave_device (
+		.scl(scl),
+		.sda(sda)
+		);
+
 	initial begin
 		$dumpfile("master_device_tb.vcd");
-		$dumpvars(0, master_device_tb);
+		$dumpvars(0);
 	end
 	
-	initial begin
-		clk = 0;
-		forever begin
-			clk = #2 ~clk;
-		end		
-	end
+	initial clk = 0;
+	always #1 clk <= ~clk;
 	
 	initial begin
-		sda = 1;
-		dest_address = 7'b0001110;
-		rw = 1'b0;
+		address_in = 7'b1100110;
+		rw = 1;
+		data_in = 8'b11100011;
+		rst = 1;
 		enable = 0;
-		#20;
-		
-        enable = 1;
 		#10;
-		enable = 0;
-		
-		#100;
-		
-		enable = 1;
+		rst = 0;
 		#10;
-		enable = 0;
-		
-		#100;
+		enable <= 1;
+		#5;
+		enable <= 0;
+		#500;
 		
 		$finish;
-		
-	end   
-	
+	end
+
 endmodule
-	
-	
-	
-	
-	
-	
-	
