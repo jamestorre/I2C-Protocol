@@ -3,6 +3,11 @@
 Controller - Peripheral communication using I2C protocol, in Verilog.
 # Simulation
   ![Demo](./docs/demo1.png)
+  
+### Address
+| 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+|---|---|---|---|---|---|---|
+
 + Enable signal is set high for 5ns;
 + START condition by pulling SDA low while SCL is high;
 + Sending addres 'b1100110 with rw bit set through SDA;
