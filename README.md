@@ -4,7 +4,7 @@ Controller - Peripheral communication using I2C protocol, in Verilog.
 # Simulation
   ![Demo](./docs/demo1.png)
   
-### Address
+### Peripheral's Address
 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
 |---|---|---|---|---|---|---|
 
