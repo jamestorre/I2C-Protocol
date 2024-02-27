@@ -10,7 +10,7 @@ Controller - Peripheral communication using I2C protocol, in Verilog.
 
 + Enable signal is set high for 5ns;
 + START condition by pulling SDA low while SCL is high;
-+ Sending addres 'b1100110 with rw bit set through SDA;
++ Sending addres 'b1100110 with rw = 1 (READ mode) through SDA;
 + Slave (Peripheral) device compares its address, then sends ACK bit;
 + Master (Controller) receives ACK, continues SCL and reads SDA;
 + Slave device starts transmitting data byte 'b11100011 = 'hE3;
