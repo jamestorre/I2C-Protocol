@@ -3,10 +3,10 @@
 Controller - Peripheral communication using I2C protocol, in Verilog.
 # Simulation
 ## Master Reads - Slave Writes
-![Demo](./docs/demo_i2c_MRSW.png)
+![Demo](./docs/demo2_i2c_MRSW.png)
 
 ## Master Writes - Slave Reads
-![Demo](./docs/demo_i2c_MWSR.png)
+![Demo](./docs/demo2_i2c_MWSR.png)
 
 ### Peripheral's Address
 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
