@@ -1,10 +1,10 @@
 # I2C-Protocol
 
 Controller - Peripheral communication using I2C protocol, in Verilog.
-# Simulation 1
-Master Writes - Slave Reads
+# Simulation
+## Master Writes - Slave Reads
   ![Demo](./docs/demo_i2c_MWSR.png)
-  
+
 ### Peripheral's Address
 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
 |---|---|---|---|---|---|---|
