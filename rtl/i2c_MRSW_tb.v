@@ -3,8 +3,8 @@
 `include "master_device.v"
 `include "slave_device.v"
 
-// I2C Master Writes, Slave Reads
-module i2c_MWSR_tb;
+// I2C Master Reads, Slave Writes
+module i2c_MRSW_tb;
 	
 	reg r_clk;
 	reg r_rst; // Active HIGH reset.
@@ -38,7 +38,7 @@ module i2c_MWSR_tb;
 	);
 	
 	initial begin
-		$dumpfile("i2c_MWSR_tb.vcd");
+		$dumpfile("i2c_MRSW_tb.vcd");
 		$dumpvars(0);
 	end
 	
@@ -50,7 +50,7 @@ module i2c_MWSR_tb;
 	
 	initial begin
 		r_address = 7'b1100110;
-		r_rw = 0; // WRITE bit
+		r_rw = 1;  // READ bit
 		r_data = 8'b11100011;
 		r_rst = 1;
 		r_enable = 0;

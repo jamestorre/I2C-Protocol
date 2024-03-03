@@ -10,8 +10,6 @@ module master_device (
 	
 	inout io_scl,
 	inout io_sda
-	
-	
 	);
 	
 	localparam CLK_DIV = 4;
@@ -34,6 +32,7 @@ module master_device (
 	reg r_sda_out = 1;
 	reg [7:0] r_state;
 	reg [7:0] r_address_frame;
+	reg [7:0] r_data_buffer = 8'h00;
 	
 	assign io_scl = (r_scl_enable) ? r_scl : 1;
 	assign io_sda = (r_sda_write_enable) ? r_sda_out : 1'bz;
@@ -52,6 +51,7 @@ module master_device (
 			r_sda_write_enable <= 0; 
 			r_scl_enable <= 0;
 			o_busy <= 0;
+			r_data_buffer <= 8'h00;
 		end
 		else begin
 			case (r_state)
@@ -86,9 +86,8 @@ module master_device (
 							r_state <= WRITE_DATA;
 						end
 						else if (r_address_frame[0] == 1) begin
-						
+							r_counter <= 8;
 							r_state <= READ_DATA;
-						
 						end
 					end
 					// ACK failure.
@@ -104,6 +103,13 @@ module master_device (
 					end
 				end
 				
+				READ_DATA: begin
+					r_data_buffer[r_counter] <= io_sda;
+					if (r_counter == 0) begin
+						r_state <= SEND_ACK2;
+					end
+				end
+				
 				READ_ACK2: begin
 					// ACK success.
 					if (io_sda == 0) begin
@@ -113,6 +119,10 @@ module master_device (
 					else begin
 						r_state <= STOP;
 					end
+				end
+				
+				SEND_ACK2: begin
+					r_state <= STOP;
 				end
 				
 				STOP: begin
@@ -148,8 +158,24 @@ module master_device (
 					r_sda_out <= i_data[r_counter];
 				end
 				
+				READ_DATA: begin
+					r_counter <= r_counter - 1;
+				end
+				
 				READ_ACK2: begin
 					r_sda_write_enable <= 0;
+				end
+				
+				SEND_ACK2: begin
+					r_sda_write_enable <= 1;
+					// If it contains Z or X, send NACK
+					if (^r_data_buffer === 1'bx) begin
+						r_sda_out <= 1;
+					end
+					// Else, send ACK
+					else begin
+						r_sda_out <= 0;
+					end
 				end
 				
 				STOP: begin

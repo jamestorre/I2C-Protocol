@@ -13,15 +13,16 @@ module slave_device (
 	localparam SEND_DATA_ACK = 4;
 	localparam READ_DATA_ACK = 5;
 	
-	
+	reg [7:0] r_data_local = 8'b10101101;
 	reg [7:0] r_address_frame;
-	reg [7:0] r_data_buffer;
+	reg [7:0] r_data_buffer = 8'h00;
 	reg [7:0] r_counter;
-	reg [7:0] r_state;
+	reg [7:0] r_state = READ_ADDRESS;
 	reg r_busy = 0;
 	reg r_sda_write_enable = 0;
 	reg r_address_hit = 0;
 	reg r_sda_out;
+	
 	
 	assign io_sda = (r_sda_write_enable) ? r_sda_out : 1'bz;
 	
@@ -32,6 +33,7 @@ module slave_device (
 			r_counter <= 8;
 			r_state <= READ_ADDRESS;
 			r_address_hit <= 0;
+			r_data_buffer <= 8'h00;
 		end
 	end
 	
@@ -61,8 +63,8 @@ module slave_device (
 						r_counter <= 8;
 						r_state <= READ_DATA;
 					end
-					// MRSR
 					else if (r_address_frame[0] == 1) begin
+						r_counter <= 7;
 						r_state <= WRITE_DATA;
 					end
 				end
@@ -76,8 +78,19 @@ module slave_device (
 				end
 			end
 			
+			WRITE_DATA: begin
+				r_counter <= r_counter - 1;
+				if (r_counter == 0) begin
+					r_state <= READ_DATA_ACK;
+				end
+			end
+			
 			SEND_DATA_ACK: begin
 				r_state <= READ_ADDRESS;
+			end
+			
+			READ_DATA_ACK: begin
+				
 			end
 			
 		endcase
@@ -104,6 +117,10 @@ module slave_device (
 				r_counter <= r_counter - 1;
 			end
 			
+			WRITE_DATA: begin
+				r_sda_out <= r_data_local[r_counter];
+			end
+			
 			SEND_DATA_ACK: begin
 				r_sda_write_enable <= 1;
 				// If it contains Z or X, send NACK
@@ -114,6 +131,10 @@ module slave_device (
 				else begin
 					r_sda_out <= 0;
 				end
+			end
+			
+			READ_DATA_ACK: begin
+				r_sda_write_enable <= 0;
 			end
 	
 		endcase
